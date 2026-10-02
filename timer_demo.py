@@ -53,6 +53,7 @@ def run_match(clock):
 
         # 先判断「最后一级也打完了」——是的话直接收工，不再报时
         if remaining == 0 and not clock.advance_if_needed():
+            print("剩余 0 秒")
             print("比赛结束！")
             break
 
@@ -60,11 +61,12 @@ def run_match(clock):
         if remaining == 0:   # advance_if_needed 刚升了一级
             level = clock.current_level()
             print(f"===== 升盲！现在是 小盲{level['small_blind']}/大盲{level['big_blind']} =====")
+            continue   # 新级别刚“出生”，立刻回去打印它的第一秒，不许先睡
 
-        # 每次循环 = 表上时间走1秒；speed 已经折算在 seconds_remaining 里，
-        # 所以这里固定睡真实1秒即可（测试模式下1秒=表上120秒）
+        # 睡眠只在「同一级别内」的相邻两秒之间发生；升盲瞬间不睡
         time.sleep(1)
 
 
-clock = TournamentClock(BLIND_LEVELS, speed=120)   # speed=120：测试加速，约18秒看完全场
+clock = TournamentClock(BLIND_LEVELS, speed=100)   # speed=100：测试加速，约21秒看完全场
+                                                   # （选100是因为 600/100=6、900/100=9，都是整数秒，显示干净）
 run_match(clock)
